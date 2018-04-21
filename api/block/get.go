@@ -3,7 +3,7 @@ package block
 import (
 	"net/http"
 
-	"github.com/nathenapse/blockchain/pkg"
+	"github.com/nathenapse/learning-blockchain/pkg"
 )
 
 // Get All the blocks in the blockchain

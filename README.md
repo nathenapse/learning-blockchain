@@ -11,9 +11,10 @@ My first blockchain in Golang
 - [Dep](https://github.com/golang/dep) which is a go dependency manager
 
 ## INSTALLATION
-- Get the project `go get github.com/nathenapse/learning-blockchain`
+- Get the project `go get -u github.com/nathenapse/learning-blockchain`
 - Go to directory `cd $GOPATH/src/github.com/nathenapse/learning-blockchain/`
 - Set Env variable `cp .env.example .env`
+- Install dependencies `dep ensure`
 - Change server port in `.env` which the default is ``PORT=8080``
 
 ## RUN

@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/nathenapse/blockchain/pkg"
+	"github.com/nathenapse/learning-blockchain/pkg"
 )
 
 // Message takes incoming JSON payload for writing Money

@@ -10,8 +10,8 @@ import (
 
 	"github.com/joho/godotenv"
 
-	"github.com/nathenapse/blockchain/api"
-	"github.com/nathenapse/blockchain/pkg"
+	"github.com/nathenapse/learning-blockchain/api"
+	"github.com/nathenapse/learning-blockchain/pkg"
 )
 
 // Message takes incoming JSON payload for writing Money

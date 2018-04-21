@@ -4,8 +4,8 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
-	"github.com/nathenapse/blockchain/api/block"
-	"github.com/nathenapse/blockchain/pkg"
+	"github.com/nathenapse/learning-blockchain/api/block"
+	"github.com/nathenapse/learning-blockchain/pkg"
 )
 
 // MakeMuxRouter returns the routes
