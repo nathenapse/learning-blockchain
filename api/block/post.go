@@ -10,7 +10,7 @@ import (
 
 // Message takes incoming JSON payload for writing Money
 type Message struct {
-	Money int
+	Money int `json:"money"`
 }
 
 var mutex = &sync.Mutex{}
@@ -21,14 +21,17 @@ func Post(blockchain *pkg.Blockchain) func(w http.ResponseWriter, r *http.Reques
 		w.Header().Set("Content-Type", "application/json")
 		var m Message
 
-		decoder := json.NewDecoder(r.Body)
-
-		if err := decoder.Decode(&m); err != nil {
-			respondWithJSON(w, r, http.StatusBadRequest, r.Body)
+		if err := json.NewDecoder(r.Body).Decode(&m); err != nil {
+			respondWithJSON(w, r, http.StatusBadRequest, m)
 			return
 		}
 
 		defer r.Body.Close()
+
+		if m.Money <= 0 {
+			respondWithJSON(w, r, http.StatusBadRequest, m)
+			return
+		}
 
 		mutex.Lock()
 		newBlock, err := blockchain.AddBlock(m.Money)

@@ -3,3 +3,6 @@ vendor/
 
 # environment variable
 .env
+
+# Mac stuff
+.DS_Store

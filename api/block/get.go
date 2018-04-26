@@ -10,7 +10,11 @@ import (
 func Get(blockchain *pkg.Blockchain) func(w http.ResponseWriter, r *http.Request) {
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		blocks := blockchain.AllBlocks()
+		blocks, err := blockchain.AllBlocks()
+		if err != nil {
+			respondWithJSON(w, r, http.StatusInternalServerError, nil)
+			return
+		}
 		respondWithJSON(w, r, http.StatusOK, blocks)
 	}
 }

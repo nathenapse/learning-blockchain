@@ -31,3 +31,18 @@ func NewBlockNotFoundError(message string, index int) *BlockNotFoundError {
 func (e *BlockNotFoundError) Error() string {
 	return e.message
 }
+
+// EnvNotFoundError is raised when we can't find an indes in the block
+type EnvNotFoundError struct {
+	message string
+}
+
+// NewEnvNotFoundError returns an error that formats as the given text.
+func NewEnvNotFoundError(message string) *EnvNotFoundError {
+	return &EnvNotFoundError{
+		message: message,
+	}
+}
+func (e *EnvNotFoundError) Error() string {
+	return e.message
+}

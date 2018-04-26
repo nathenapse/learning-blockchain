@@ -1,7 +1,9 @@
 package pkg
 
 import (
+	"bytes"
 	"crypto/sha256"
+	"encoding/gob"
 	"encoding/hex"
 	"strconv"
 	"time"
@@ -54,4 +56,28 @@ func IsBlockValid(newBlock *Block, oldBlock *Block) bool {
 	}
 
 	return true
+}
+
+// Serialize serializes the block to []byte
+func (block *Block) Serialize() ([]byte, error) {
+	var result bytes.Buffer
+	encoder := gob.NewEncoder(&result)
+
+	if err := encoder.Encode(block); err != nil {
+		return nil, err
+	}
+
+	return result.Bytes(), nil
+}
+
+// DeserializeBlock unserializes block
+func DeserializeBlock(d []byte) (*Block, error) {
+	var block Block
+
+	decoder := gob.NewDecoder(bytes.NewReader(d))
+	if err := decoder.Decode(&block); err != nil {
+		return nil, err
+	}
+
+	return &block, nil
 }
