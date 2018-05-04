@@ -1,63 +1,45 @@
 package main
 
 import (
-	"reflect"
+	"os"
+	"os/user"
 	"testing"
 
-	bolt "github.com/coreos/bbolt"
-	"github.com/nathenapse/learning-blockchain/pkg"
+	"github.com/joho/godotenv"
+
+	"github.com/nathenapse/learning-blockchain/app"
 )
+
+var a app.App
+var usr, err = user.Current()
 
 func Test_main(t *testing.T) {
 	tests := []struct {
 		name string
 	}{
 		// TODO: Add test cases.
-	}
-	for range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			main()
-		})
-	}
-}
-
-func Test_runServer(t *testing.T) {
-	type args struct {
-		blockchain *pkg.Blockchain
-	}
-	tests := []struct {
-		name    string
-		args    args
-		wantErr bool
-	}{
-		// TODO: Add test cases.
+		{"noenv"},
+		{"test"},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := runServer(tt.args.blockchain); (err != nil) != tt.wantErr {
-				t.Errorf("runServer() error = %v, wantErr %v", err, tt.wantErr)
+			if tt.name != "noenv" {
+				godotenv.Load()
 			}
-		})
-	}
-}
+			a = app.App{}
+			testDb, found := os.LookupEnv("TEST_DB")
+			if found == false && tt.name != "noenv" {
+				t.Fatal("no env found")
+			} else {
 
-func Test_setupDB(t *testing.T) {
-	tests := []struct {
-		name    string
-		want    *bolt.DB
-		wantErr bool
-	}{
-		// TODO: Add test cases.
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			got, err := setupDB()
-			if (err != nil) != tt.wantErr {
-				t.Errorf("setupDB() error = %v, wantErr %v", err, tt.wantErr)
-				return
-			}
-			if !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("setupDB() = %v, want %v", got, tt.want)
+				a.Initialize(testDb)
+
+				if _, err := os.Stat(usr.HomeDir + "/.blockchain"); os.IsNotExist(err) {
+					t.Errorf("Initialize not creating directory at %v", err)
+				}
+				if _, err := os.Stat(usr.HomeDir + "/.blockchain/" + testDb); os.IsNotExist(err) {
+					t.Errorf("Initialize not creating db file at %v", err)
+				}
 			}
 		})
 	}

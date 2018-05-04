@@ -6,14 +6,8 @@ import (
 	bolt "github.com/coreos/bbolt"
 )
 
-// Blockchain is the list of linked blocks
-type Blockchain struct {
-	last []byte
-	db   *bolt.DB
-}
-
 // NewBlockchain initializes a new blockchain
-func NewBlockchain(db *bolt.DB) (*Blockchain, error) {
+func NewBlockchain(db *bolt.DB) error {
 	var last []byte
 	err := db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("blockchain"))
@@ -42,17 +36,17 @@ func NewBlockchain(db *bolt.DB) (*Blockchain, error) {
 	})
 
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return &Blockchain{last, db}, err
+	return err
 }
 
 // AddBlock Addes a block in a blockchain
-func (bc *Blockchain) AddBlock(money int) (*Block, error) {
+func AddBlock(money int, db *bolt.DB) (*Block, error) {
 	var lastHash []byte
 	var lastBlock *Block
-	err := bc.db.View(func(tx *bolt.Tx) error {
+	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("blockchain"))
 		lastHash = b.Get([]byte("last"))
 		block, err := DeserializeBlock(b.Get(lastHash))
@@ -70,7 +64,7 @@ func (bc *Blockchain) AddBlock(money int) (*Block, error) {
 	if !IsBlockValid(newBlock, lastBlock) {
 		return nil, NewInvalidBlockError("Invalid Block", newBlock)
 	}
-	err = bc.db.Update(func(tx *bolt.Tx) error {
+	err = db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("blockchain"))
 
 		serialized, err := newBlock.Serialize()
@@ -96,9 +90,9 @@ func (bc *Blockchain) AddBlock(money int) (*Block, error) {
 }
 
 // GetBlock gets you the block with a specific block
-func (bc *Blockchain) GetBlock(hash []byte) (*Block, error) {
+func GetBlock(hash []byte, db *bolt.DB) (*Block, error) {
 	var block *Block
-	err := bc.db.View(func(tx *bolt.Tx) error {
+	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("blockchain"))
 		dblock, err := DeserializeBlock(b.Get(hash))
 		block = dblock
@@ -114,9 +108,9 @@ func (bc *Blockchain) GetBlock(hash []byte) (*Block, error) {
 }
 
 // AllBlocks get all blocks in the blockchain that are sorted
-func (bc *Blockchain) AllBlocks() ([]*Block, error) {
+func AllBlocks(db *bolt.DB) ([]*Block, error) {
 	var blocks []*Block
-	err := bc.db.View(func(tx *bolt.Tx) error {
+	err := db.View(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("blockchain"))
 		b.ForEach(func(k, v []byte) error {
 			block, err := DeserializeBlock(v)

@@ -1,4 +1,4 @@
-package block
+package app
 
 import (
 	"encoding/json"
@@ -8,15 +8,27 @@ import (
 	"github.com/nathenapse/learning-blockchain/pkg"
 )
 
-// Message takes incoming JSON payload for writing Money
+func (app *App) getBlocks() func(w http.ResponseWriter, r *http.Request) {
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		blocks, err := pkg.AllBlocks(app.DB)
+		if err != nil {
+			respondWithJSON(w, r, http.StatusInternalServerError, nil)
+			return
+		}
+		respondWithJSON(w, r, http.StatusOK, blocks)
+	}
+}
+
+// Message is the request the server is expecting
 type Message struct {
 	Money int `json:"money"`
 }
 
 var mutex = &sync.Mutex{}
 
-// Post Create a new Block to a blockchain
-func Post(blockchain *pkg.Blockchain) func(w http.ResponseWriter, r *http.Request) {
+// CreateBlock Create a new Block to a blockchain
+func (app *App) createBlock() func(w http.ResponseWriter, r *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		var m Message
@@ -34,7 +46,7 @@ func Post(blockchain *pkg.Blockchain) func(w http.ResponseWriter, r *http.Reques
 		}
 
 		mutex.Lock()
-		newBlock, err := blockchain.AddBlock(m.Money)
+		newBlock, err := pkg.AddBlock(m.Money, app.DB)
 		mutex.Unlock()
 
 		if err != nil {
@@ -43,15 +55,4 @@ func Post(blockchain *pkg.Blockchain) func(w http.ResponseWriter, r *http.Reques
 			respondWithJSON(w, r, http.StatusCreated, *newBlock)
 		}
 	}
-}
-
-func respondWithJSON(w http.ResponseWriter, r *http.Request, code int, payload interface{}) {
-	response, err := json.MarshalIndent(payload, "", "  ")
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		w.Write([]byte("HTTP 500: Internal Server Error"))
-		return
-	}
-	w.WriteHeader(code)
-	w.Write(response)
 }
